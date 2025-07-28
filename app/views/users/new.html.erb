@@ -1,0 +1,53 @@
+<% content_for :title, "Sign Up - Fresh Stack" %>
+
+<div class="auth-container">
+  <div class="auth-form">
+    <h2>Join Fresh Stack</h2>
+    
+    <%= form_with model: @user, local: true, class: "form" do |form| %>
+      <% if @user.errors.any? %>
+        <div class="alert alert-danger">
+          <h4><%= pluralize(@user.errors.count, "error") %> prohibited this account from being created:</h4>
+          <ul>
+            <% @user.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="form-group">
+        <%= form.label :name, class: "form-label" %>
+        <%= form.text_field :name, required: true, class: "form-control", placeholder: "Enter your full name" %>
+      </div>
+
+      <div class="form-group">
+        <%= form.label :email, class: "form-label" %>
+        <%= form.email_field :email, required: true, class: "form-control", placeholder: "Enter your email" %>
+      </div>
+
+      <div class="form-group">
+        <%= form.label :password, class: "form-label" %>
+        <%= form.password_field :password, required: true, class: "form-control", placeholder: "Create a password" %>
+      </div>
+
+      <div class="form-group">
+        <%= form.label :password_confirmation, "Confirm Password", class: "form-label" %>
+        <%= form.password_field :password_confirmation, required: true, class: "form-control", placeholder: "Confirm your password" %>
+      </div>
+
+      <div class="form-group">
+        <%= form.label :tenant_id, "Organization", class: "form-label" %>
+        <%= form.collection_select :tenant_id, @tenants, :id, :name, { prompt: "Select your organization" }, { required: true, class: "form-control" } %>
+      </div>
+
+      <div class="form-actions">
+        <%= form.submit "Create Account", class: "btn btn-primary" %>
+      </div>
+    <% end %>
+
+    <div class="auth-links">
+      <p>Already have an account? <%= link_to "Login here", login_path %></p>
+    </div>
+  </div>
+</div>

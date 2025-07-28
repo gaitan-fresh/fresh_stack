@@ -1,0 +1,158 @@
+<% content_for :title, "#{@question.title} - Fresh Stack" %>
+
+<div class="question-detail">
+  <div class="question-header">
+    <h1><%= @question.title %></h1>
+    <div class="question-actions">
+      <% if current_user == @question.user %>
+        <%= link_to "Edit", edit_question_path(@question), class: "btn btn-sm btn-outline" %>
+        <%= link_to "Delete", @question, data: { "turbo-method": :delete, "turbo-confirm": "Are you sure?" }, class: "btn btn-sm btn-danger" %>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="question-content">
+    <div class="voting-panel">
+      <% if current_user&.can_vote? %>
+        <%= form_with url: vote_up_question_path(@question), method: :post, local: true, class: "vote-form" do %>
+          <button type="submit" class="vote-btn vote-up <%= 'active' if @question.votes.find_by(user: current_user)&.value == 1 %>">
+            ▲
+          </button>
+        <% end %>
+      <% end %>
+      
+      <span class="vote-score"><%= @question.vote_score %></span>
+      
+      <% if current_user&.can_vote? %>
+        <%= form_with url: vote_down_question_path(@question), method: :post, local: true, class: "vote-form" do %>
+          <button type="submit" class="vote-btn vote-down <%= 'active' if @question.votes.find_by(user: current_user)&.value == -1 %>">
+            ▼
+          </button>
+        <% end %>
+      <% end %>
+    </div>
+
+    <div class="question-body">
+      <div class="content">
+        <%= simple_format(@question.body) %>
+      </div>
+
+      <div class="question-tags">
+        <% @question.tags.each do |tag| %>
+          <%= link_to tag.name, questions_path(tag: tag.name), class: "tag-badge" %>
+        <% end %>
+      </div>
+
+      <div class="question-meta">
+        <div class="author-info">
+          <span>asked by <%= link_to @question.user.name, @question.user %></span>
+          <span class="date"><%= @question.created_at.strftime("%B %d, %Y at %I:%M %p") %></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="responses-section">
+    <h3><%= pluralize(@responses.count, "Answer") %></h3>
+
+    <% @responses.each do |response| %>
+      <div class="response-item <%= 'accepted' if response.is_accepted? %>">
+        <div class="voting-panel">
+          <% if current_user&.can_vote? %>
+            <%= form_with url: vote_up_response_path(response), method: :post, local: true, class: "vote-form" do %>
+              <button type="submit" class="vote-btn vote-up <%= 'active' if response.votes.find_by(user: current_user)&.value == 1 %>">
+                ▲
+              </button>
+            <% end %>
+          <% end %>
+          
+          <span class="vote-score"><%= response.vote_score %></span>
+          
+          <% if current_user&.can_vote? %>
+            <%= form_with url: vote_down_response_path(response), method: :post, local: true, class: "vote-form" do %>
+              <button type="submit" class="vote-btn vote-down <%= 'active' if response.votes.find_by(user: current_user)&.value == -1 %>">
+                ▼
+              </button>
+            <% end %>
+          <% end %>
+
+          <% if current_user == @question.user && !response.is_accepted? %>
+            <%= form_with url: accept_response_path(response), method: :patch, local: true, class: "accept-form" do %>
+              <button type="submit" class="accept-btn" title="Accept this answer">
+                ✓
+              </button>
+            <% end %>
+          <% end %>
+        </div>
+
+        <div class="response-content">
+          <% if response.is_accepted? %>
+            <div class="accepted-badge">✓ Accepted Answer</div>
+          <% end %>
+          
+          <div class="content">
+            <%= simple_format(response.body) %>
+          </div>
+
+          <div class="response-meta">
+            <div class="author-info">
+              <span>answered by <%= link_to response.user.name, response.user %></span>
+              <span class="date"><%= response.created_at.strftime("%B %d, %Y at %I:%M %p") %></span>
+            </div>
+            
+            <div class="response-actions">
+              <% if current_user == response.user %>
+                <%= link_to "Edit", edit_response_path(response), class: "btn btn-sm btn-outline" %>
+                <%= link_to "Delete", response, data: { "turbo-method": :delete, "turbo-confirm": "Are you sure?" }, class: "btn btn-sm btn-danger" %>
+              <% end %>
+            </div>
+          </div>
+
+          <!-- Nested responses -->
+          <% if response.responses.any? %>
+            <div class="nested-responses">
+              <% response.responses.each do |nested_response| %>
+                <div class="nested-response">
+                  <div class="content">
+                    <%= simple_format(nested_response.body) %>
+                  </div>
+                  <div class="response-meta">
+                    <span>by <%= link_to nested_response.user.name, nested_response.user %></span>
+                    <span class="date"><%= time_ago_in_words(nested_response.created_at) %> ago</span>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+
+          <!-- Reply form for nested responses -->
+          <% if current_user&.can_respond? %>
+            <div class="reply-form">
+              <%= form_with model: [@question, Response.new], url: question_responses_path(@question), local: true do |form| %>
+                <%= form.hidden_field :parent_id, value: response.id %>
+                <%= form.hidden_field :parent_type, value: "Response" %>
+                <%= form.text_area :body, placeholder: "Add a comment...", rows: 2, class: "form-control" %>
+                <%= form.submit "Reply", class: "btn btn-sm btn-secondary" %>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Answer form -->
+    <% if current_user&.can_respond? %>
+      <div class="answer-form">
+        <h4>Your Answer</h4>
+        <%= form_with model: [@question, @response], local: true do |form| %>
+          <div class="form-group">
+            <%= form.text_area :body, rows: 6, class: "form-control", placeholder: "Write your answer here..." %>
+          </div>
+          <div class="form-actions">
+            <%= form.submit "Post Answer", class: "btn btn-primary" %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

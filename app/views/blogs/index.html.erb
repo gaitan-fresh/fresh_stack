@@ -1,0 +1,59 @@
+<% content_for :title, "Blogs - Fresh Stack" %>
+
+<div class="blogs-header">
+  <div class="header-content">
+    <h1>Blog Posts</h1>
+    <%= link_to "Write Post", new_blog_path, class: "btn btn-primary" %>
+  </div>
+
+  <div class="search-filters">
+    <%= form_with url: blogs_path, method: :get, local: true, class: "search-form" do |form| %>
+      <%= form.text_field :search, placeholder: "Search blog posts...", value: params[:search], class: "form-control search-input" %>
+      <%= form.submit "Search", class: "btn btn-secondary" %>
+    <% end %>
+  </div>
+</div>
+
+<div class="blogs-list">
+  <% if @blogs.any? %>
+    <% @blogs.each do |blog| %>
+      <article class="blog-card">
+        <div class="blog-content">
+          <h2 class="blog-title">
+            <%= link_to blog.title, blog %>
+          </h2>
+          
+          <div class="blog-excerpt">
+            <%= truncate(strip_tags(blog.body), length: 300) %>
+          </div>
+
+          <div class="blog-tags">
+            <% blog.tags.each do |tag| %>
+              <%= link_to tag.name, blogs_path(tag: tag.name), class: "tag-badge" %>
+            <% end %>
+          </div>
+
+          <div class="blog-meta">
+            <span class="author">
+              by <%= link_to blog.user.name, blog.user %>
+            </span>
+            <span class="date">
+              <%= blog.created_at.strftime("%B %d, %Y") %>
+            </span>
+            <% if blog.questions.any? %>
+              <span class="related-questions">
+                Related to <%= pluralize(blog.questions.count, "question") %>
+              </span>
+            <% end %>
+          </div>
+        </div>
+      </article>
+    <% end %>
+  <% else %>
+    <div class="empty-state">
+      <h3>No blog posts found</h3>
+      <p>Be the first to write a blog post!</p>
+      <%= link_to "Write the first post", new_blog_path, class: "btn btn-primary" %>
+    </div>
+  <% end %>
+</div>

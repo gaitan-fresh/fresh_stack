@@ -1,0 +1,70 @@
+<% content_for :title, "#{@user.name} - Profile" %>
+
+<div class="profile-container">
+  <div class="profile-header">
+    <h1><%= @user.name %></h1>
+    <div class="profile-meta">
+      <span class="badge badge-<%= @user.role %>"><%= @user.role.capitalize %></span>
+      <span class="text-muted">Member since <%= @user.created_at.strftime("%B %Y") %></span>
+    </div>
+  </div>
+
+  <div class="profile-stats">
+    <div class="stat-card">
+      <h3><%= @user.questions.count %></h3>
+      <p>Questions Asked</p>
+    </div>
+    <div class="stat-card">
+      <h3><%= @user.responses.count %></h3>
+      <p>Responses Given</p>
+    </div>
+    <div class="stat-card">
+      <h3><%= @user.blogs.count %></h3>
+      <p>Blog Posts</p>
+    </div>
+    <div class="stat-card">
+      <h3><%= @user.votes.count %></h3>
+      <p>Votes Cast</p>
+    </div>
+  </div>
+
+  <div class="profile-content">
+    <div class="content-section">
+      <h3>Recent Questions</h3>
+      <% if @user.questions.any? %>
+        <div class="question-list">
+          <% @user.questions.order(created_at: :desc).limit(5).each do |question| %>
+            <div class="question-item">
+              <%= link_to question.title, question, class: "question-title" %>
+              <div class="question-meta">
+                <span class="vote-count"><%= question.vote_score %> votes</span>
+                <span class="response-count"><%= question.responses.count %> responses</span>
+                <span class="date"><%= time_ago_in_words(question.created_at) %> ago</span>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-muted">No questions asked yet.</p>
+      <% end %>
+    </div>
+
+    <div class="content-section">
+      <h3>Recent Blog Posts</h3>
+      <% if @user.blogs.any? %>
+        <div class="blog-list">
+          <% @user.blogs.order(created_at: :desc).limit(5).each do |blog| %>
+            <div class="blog-item">
+              <%= link_to blog.title, blog, class: "blog-title" %>
+              <div class="blog-meta">
+                <span class="date"><%= time_ago_in_words(blog.created_at) %> ago</span>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-muted">No blog posts yet.</p>
+      <% end %>
+    </div>
+  </div>
+</div>

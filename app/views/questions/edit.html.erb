@@ -1,0 +1,43 @@
+<% content_for :title, "Edit Question - Fresh Stack" %>
+
+<div class="form-container">
+  <h1>Edit Question</h1>
+  
+  <%= form_with model: @question, local: true, class: "form" do |form| %>
+    <% if @question.errors.any? %>
+      <div class="alert alert-danger">
+        <h4><%= pluralize(@question.errors.count, "error") %> prohibited this question from being saved:</h4>
+        <ul>
+          <% @question.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="form-group">
+      <%= form.label :title, class: "form-label" %>
+      <%= form.text_field :title, class: "form-control" %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :body, "Details", class: "form-label" %>
+      <%= form.text_area :body, rows: 8, class: "form-control" %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :tag_ids, "Tags", class: "form-label" %>
+      <%= form.collection_check_boxes :tag_ids, current_tenant.tags, :id, :name do |b| %>
+        <div class="checkbox-item">
+          <%= b.check_box(class: "form-check-input") %>
+          <%= b.label(class: "form-check-label") %>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="form-actions">
+      <%= form.submit "Update Question", class: "btn btn-primary" %>
+      <%= link_to "Cancel", @question, class: "btn btn-secondary" %>
+    </div>
+  <% end %>
+</div>

@@ -1,0 +1,82 @@
+<% content_for :title, "Questions - Fresh Stack" %>
+
+<div class="questions-header">
+  <div class="header-content">
+    <h1>Questions</h1>
+    <% if current_user&.can_post_questions? %>
+      <%= link_to "Ask Question", new_question_path, class: "btn btn-primary" %>
+    <% end %>
+  </div>
+
+  <div class="search-filters">
+    <%= form_with url: questions_path, method: :get, local: true, class: "search-form" do |form| %>
+      <%= form.text_field :search, placeholder: "Search questions...", value: params[:search], class: "form-control search-input" %>
+      <%= form.submit "Search", class: "btn btn-secondary" %>
+    <% end %>
+
+    <% if params[:tag].present? %>
+      <div class="active-filter">
+        Filtered by tag: <span class="tag-badge"><%= params[:tag] %></span>
+        <%= link_to "Clear", questions_path, class: "btn btn-sm btn-outline" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<div class="questions-list">
+  <% if @questions.any? %>
+    <% @questions.each do |question| %>
+      <div class="question-card">
+        <div class="question-stats">
+          <div class="stat">
+            <span class="stat-number"><%= question.vote_score %></span>
+            <span class="stat-label">votes</span>
+          </div>
+          <div class="stat">
+            <span class="stat-number"><%= question.responses.count %></span>
+            <span class="stat-label">answers</span>
+          </div>
+          <% if question.accepted_response %>
+            <div class="stat accepted">
+              <span class="stat-icon">✓</span>
+              <span class="stat-label">accepted</span>
+            </div>
+          <% end %>
+        </div>
+
+        <div class="question-content">
+          <h3 class="question-title">
+            <%= link_to question.title, question %>
+          </h3>
+          
+          <div class="question-excerpt">
+            <%= truncate(strip_tags(question.body), length: 200) %>
+          </div>
+
+          <div class="question-tags">
+            <% question.tags.each do |tag| %>
+              <%= link_to tag.name, questions_path(tag: tag.name), class: "tag-badge" %>
+            <% end %>
+          </div>
+
+          <div class="question-meta">
+            <span class="author">
+              asked by <%= link_to question.user.name, question.user %>
+            </span>
+            <span class="date">
+              <%= time_ago_in_words(question.created_at) %> ago
+            </span>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="empty-state">
+      <h3>No questions found</h3>
+      <p>Be the first to ask a question!</p>
+      <% if current_user&.can_post_questions? %>
+        <%= link_to "Ask the first question", new_question_path, class: "btn btn-primary" %>
+      <% end %>
+    </div>
+  <% end %>
+</div>

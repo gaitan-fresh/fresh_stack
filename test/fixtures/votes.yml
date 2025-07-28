@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  value: 1
+  user: one
+  question: one
+  response: one
+  tenant: one
+
+two:
+  value: 1
+  user: two
+  question: two
+  response: two
+  tenant: two
