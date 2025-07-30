@@ -27,7 +27,8 @@
   <% if @questions.any? %>
     <% @questions.each do |question| %>
       <div class="question-card">
-        <div class="question-stats">
+        <!-- Column 1: Stats (Votes, Answers, Accepted) -->
+        <div class="question-stats-column">
           <div class="vote-display compact">
             <div class="vote-item upvotes <%= 'zero' if question.upvotes_count == 0 %>">
               <span class="vote-icon">👍</span>
@@ -38,19 +39,22 @@
               <span class="vote-count"><%= question.downvotes_count %></span>
             </div>
           </div>
-          <div class="stat">
+          
+          <div class="answer-stat">
             <span class="stat-number"><%= question.responses.count %></span>
             <span class="stat-label">answers</span>
           </div>
+          
           <% if question.accepted_response %>
-            <div class="stat accepted">
+            <div class="accepted-stat">
               <span class="stat-icon">✓</span>
               <span class="stat-label">accepted</span>
             </div>
           <% end %>
         </div>
 
-        <div class="question-content">
+        <!-- Column 2: Content (Title, Body, Tags) -->
+        <div class="question-content-column">
           <h3 class="question-title">
             <%= link_to question.title, question %>
           </h3>
@@ -64,24 +68,26 @@
               <%= link_to tag.name, questions_path(tag: tag.name), class: "tag-badge" %>
             <% end %>
           </div>
+        </div>
 
-          <div class="question-meta">
-            <div class="meta-left">
-              <span class="author">
-                asked by <%= link_to question.user.name, question.user %>
-              </span>
-              <span class="date">
-                <%= time_ago_in_words(question.created_at) %> ago
-              </span>
-            </div>
-            <div class="meta-right">
-              <button class="ai-summarize-btn" 
-                      data-url="<%= summarize_question_path(question) %>"
-                      data-title="<%= question.title %>">
-                <span class="magic-wand">🪄</span>
-                AI Summary
-              </button>
-            </div>
+        <!-- Column 3: Meta & Actions (Author, Date, AI Button) -->
+        <div class="question-meta-column">
+          <div class="author-info">
+            <span class="author">
+              asked by <%= link_to question.user.name, question.user %>
+            </span>
+            <span class="date">
+              <%= time_ago_in_words(question.created_at) %> ago
+            </span>
+          </div>
+          
+          <div class="question-actions">
+            <button class="ai-summarize-btn" 
+                    data-url="<%= summarize_question_path(question) %>"
+                    data-title="<%= question.title %>">
+              <span class="magic-wand">🪄</span>
+              AI Summary
+            </button>
           </div>
         </div>
       </div>

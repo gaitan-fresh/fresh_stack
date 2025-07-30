@@ -1,16 +1,10 @@
 <% content_for :title, "#{@question.title} - Fresh Stack" %>
 
-<div class="question-detail">
-  <div class="question-header">
-    <h1><%= @question.title %></h1>
-    <div class="question-actions">
-      <button class="ai-summarize-btn" 
-              data-url="<%= summarize_question_path(@question) %>"
-              data-title="<%= @question.title %>">
-        <span class="magic-wand">🪄</span>
-        Summarize with AI
-      </button>
-      
+<div class="question-detail-container">
+  <!-- Question Header -->
+  <div class="question-detail-header">
+    <h1 class="question-detail-title"><%= @question.title %></h1>
+    <div class="question-detail-actions">
       <% if current_user == @question.user %>
         <%= link_to "Edit", edit_question_path(@question), class: "btn btn-sm btn-outline" %>
         <%= link_to "Delete", @question, data: { "turbo-method": :delete, "turbo-confirm": "Are you sure?" }, class: "btn btn-sm btn-danger" %>
@@ -18,39 +12,56 @@
     </div>
   </div>
 
-  <div class="question-content">
-    <div class="voting-panel">
-      <% if current_user&.can_vote? %>
-        <%= form_with url: vote_up_question_path(@question), method: :post, local: true, class: "vote-form" do %>
-          <button type="submit" class="unified-vote-btn upvote <%= 'active' if @question.votes.find_by(user: current_user)&.value == 1 %>">
-            <span class="vote-icon">👍</span>
-            <span class="vote-count"><%= @question.upvotes_count %></span>
-          </button>
-        <% end %>
-        
-        <%= form_with url: vote_down_question_path(@question), method: :post, local: true, class: "vote-form" do %>
-          <button type="submit" class="unified-vote-btn downvote <%= 'active' if @question.votes.find_by(user: current_user)&.value == -1 %>">
-            <span class="vote-icon">👎</span>
-            <span class="vote-count"><%= @question.downvotes_count %></span>
-          </button>
-        <% end %>
-      <% else %>
-        <!-- Non-clickable display for users who can't vote -->
-        <div class="vote-display-only">
-          <div class="vote-item upvotes">
-            <span class="vote-icon">👍</span>
-            <span class="vote-count"><%= @question.upvotes_count %></span>
+  <!-- Main Question Card -->
+  <div class="question-detail-card">
+    <!-- Column 1: Voting & Stats -->
+    <div class="question-detail-stats">
+      <div class="vote-section">
+        <% if current_user&.can_vote? %>
+          <%= form_with url: vote_up_question_path(@question), method: :post, local: true, class: "vote-form" do %>
+            <button type="submit" class="unified-vote-btn upvote <%= 'active' if @question.votes.find_by(user: current_user)&.value == 1 %>">
+              <span class="vote-icon">👍</span>
+              <span class="vote-count"><%= @question.upvotes_count %></span>
+            </button>
+          <% end %>
+          
+          <%= form_with url: vote_down_question_path(@question), method: :post, local: true, class: "vote-form" do %>
+            <button type="submit" class="unified-vote-btn downvote <%= 'active' if @question.votes.find_by(user: current_user)&.value == -1 %>">
+              <span class="vote-icon">👎</span>
+              <span class="vote-count"><%= @question.downvotes_count %></span>
+            </button>
+          <% end %>
+        <% else %>
+          <div class="vote-display-only">
+            <div class="vote-item upvotes">
+              <span class="vote-icon">👍</span>
+              <span class="vote-count"><%= @question.upvotes_count %></span>
+            </div>
+            <div class="vote-item downvotes">
+              <span class="vote-icon">👎</span>
+              <span class="vote-count"><%= @question.downvotes_count %></span>
+            </div>
           </div>
-          <div class="vote-item downvotes">
-            <span class="vote-icon">👎</span>
-            <span class="vote-count"><%= @question.downvotes_count %></span>
-          </div>
+        <% end %>
+      </div>
+
+      <div class="question-stats-info">
+        <div class="stat-item">
+          <span class="stat-number"><%= @responses.count %></span>
+          <span class="stat-label">answers</span>
         </div>
-      <% end %>
+        <% if @question.accepted_response %>
+          <div class="stat-item accepted">
+            <span class="stat-icon">✓</span>
+            <span class="stat-label">accepted</span>
+          </div>
+        <% end %>
+      </div>
     </div>
 
-    <div class="question-body">
-      <div class="content">
+    <!-- Column 2: Question Content -->
+    <div class="question-detail-content">
+      <div class="question-body">
         <%= simple_format(@question.body) %>
       </div>
 
@@ -59,49 +70,68 @@
           <%= link_to tag.name, questions_path(tag: tag.name), class: "tag-badge" %>
         <% end %>
       </div>
+    </div>
 
-      <div class="question-meta">
+    <!-- Column 3: Meta & Actions -->
+    <div class="question-detail-meta">
+      <div class="author-section">
         <div class="author-info">
-          <span>asked by <%= link_to @question.user.name, @question.user %></span>
-          <span class="date"><%= @question.created_at.strftime("%B %d, %Y at %I:%M %p") %></span>
+          <span class="author-label">asked by</span>
+          <span class="author-name"><%= link_to @question.user.name, @question.user %></span>
+          <span class="date"><%= @question.created_at.strftime("%B %d, %Y") %></span>
+          <span class="time"><%= @question.created_at.strftime("%I:%M %p") %></span>
         </div>
+      </div>
+
+      <div class="action-section">
+        <button class="ai-summarize-btn" 
+                data-url="<%= summarize_question_path(@question) %>"
+                data-title="<%= @question.title %>">
+          <span class="magic-wand">🪄</span>
+          AI Summary
+        </button>
       </div>
     </div>
   </div>
 
-  <div class="responses-section">
-    <h3><%= pluralize(@responses.count, "Answer") %></h3>
+  <!-- Answers Section -->
+  <div class="answers-section">
+    <div class="answers-header">
+      <h3><%= pluralize(@responses.count, "Answer") %></h3>
+    </div>
 
     <% @responses.each do |response| %>
-      <div class="response-item <%= 'accepted' if response.is_accepted? %>">
-        <div class="voting-panel">
-          <% if current_user&.can_vote? %>
-            <%= form_with url: vote_up_response_path(response), method: :post, local: true, class: "vote-form" do %>
-              <button type="submit" class="unified-vote-btn upvote <%= 'active' if response.votes.find_by(user: current_user)&.value == 1 %>">
-                <span class="vote-icon">👍</span>
-                <span class="vote-count"><%= response.upvotes_count %></span>
-              </button>
-            <% end %>
-            
-            <%= form_with url: vote_down_response_path(response), method: :post, local: true, class: "vote-form" do %>
-              <button type="submit" class="unified-vote-btn downvote <%= 'active' if response.votes.find_by(user: current_user)&.value == -1 %>">
-                <span class="vote-icon">👎</span>
-                <span class="vote-count"><%= response.downvotes_count %></span>
-              </button>
-            <% end %>
-          <% else %>
-            <!-- Non-clickable display for users who can't vote -->
-            <div class="vote-display-only">
-              <div class="vote-item upvotes">
-                <span class="vote-icon">👍</span>
-                <span class="vote-count"><%= response.upvotes_count %></span>
+      <div class="answer-card <%= 'accepted' if response.is_accepted? %>">
+        <!-- Column 1: Voting & Accept -->
+        <div class="answer-stats">
+          <div class="vote-section">
+            <% if current_user&.can_vote? %>
+              <%= form_with url: vote_up_response_path(response), method: :post, local: true, class: "vote-form" do %>
+                <button type="submit" class="unified-vote-btn upvote <%= 'active' if response.votes.find_by(user: current_user)&.value == 1 %>">
+                  <span class="vote-icon">👍</span>
+                  <span class="vote-count"><%= response.upvotes_count %></span>
+                </button>
+              <% end %>
+              
+              <%= form_with url: vote_down_response_path(response), method: :post, local: true, class: "vote-form" do %>
+                <button type="submit" class="unified-vote-btn downvote <%= 'active' if response.votes.find_by(user: current_user)&.value == -1 %>">
+                  <span class="vote-icon">👎</span>
+                  <span class="vote-count"><%= response.downvotes_count %></span>
+                </button>
+              <% end %>
+            <% else %>
+              <div class="vote-display-only">
+                <div class="vote-item upvotes">
+                  <span class="vote-icon">👍</span>
+                  <span class="vote-count"><%= response.upvotes_count %></span>
+                </div>
+                <div class="vote-item downvotes">
+                  <span class="vote-icon">👎</span>
+                  <span class="vote-count"><%= response.downvotes_count %></span>
+                </div>
               </div>
-              <div class="vote-item downvotes">
-                <span class="vote-icon">👎</span>
-                <span class="vote-count"><%= response.downvotes_count %></span>
-              </div>
-            </div>
-          <% end %>
+            <% end %>
+          </div>
 
           <% if current_user == @question.user && !response.is_accepted? %>
             <%= form_with url: accept_response_path(response), method: :patch, local: true, class: "accept-form" do %>
@@ -112,38 +142,26 @@
           <% end %>
         </div>
 
-        <div class="response-content">
+        <!-- Column 2: Answer Content -->
+        <div class="answer-content">
           <% if response.is_accepted? %>
             <div class="accepted-badge">✓ Accepted Answer</div>
           <% end %>
           
-          <div class="content">
+          <div class="answer-body">
             <%= simple_format(response.body) %>
-          </div>
-
-          <div class="response-meta">
-            <div class="author-info">
-              <span>answered by <%= link_to response.user.name, response.user %></span>
-              <span class="date"><%= response.created_at.strftime("%B %d, %Y at %I:%M %p") %></span>
-            </div>
-            
-            <div class="response-actions">
-              <% if current_user == response.user %>
-                <%= link_to "Edit", edit_response_path(response), class: "btn btn-sm btn-outline" %>
-                <%= link_to "Delete", response, data: { "turbo-method": :delete, "turbo-confirm": "Are you sure?" }, class: "btn btn-sm btn-danger" %>
-              <% end %>
-            </div>
           </div>
 
           <!-- Nested responses -->
           <% if response.responses.any? %>
             <div class="nested-responses">
+              <h5>Comments</h5>
               <% response.responses.each do |nested_response| %>
                 <div class="nested-response">
-                  <div class="content">
+                  <div class="comment-content">
                     <%= simple_format(nested_response.body) %>
                   </div>
-                  <div class="response-meta">
+                  <div class="comment-meta">
                     <span>by <%= link_to nested_response.user.name, nested_response.user %></span>
                     <span class="date"><%= time_ago_in_words(nested_response.created_at) %> ago</span>
                   </div>
@@ -163,6 +181,25 @@
               <% end %>
             </div>
           <% end %>
+        </div>
+
+        <!-- Column 3: Answer Meta & Actions -->
+        <div class="answer-meta">
+          <div class="author-section">
+            <div class="author-info">
+              <span class="author-label">answered by</span>
+              <span class="author-name"><%= link_to response.user.name, response.user %></span>
+              <span class="date"><%= response.created_at.strftime("%B %d, %Y") %></span>
+              <span class="time"><%= response.created_at.strftime("%I:%M %p") %></span>
+            </div>
+          </div>
+          
+          <div class="action-section">
+            <% if current_user == response.user %>
+              <%= link_to "Edit", edit_response_path(response), class: "btn btn-sm btn-outline" %>
+              <%= link_to "Delete", response, data: { "turbo-method": :delete, "turbo-confirm": "Are you sure?" }, class: "btn btn-sm btn-danger" %>
+            <% end %>
+          </div>
         </div>
       </div>
     <% end %>
