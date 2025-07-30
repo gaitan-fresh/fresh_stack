@@ -46,7 +46,16 @@
             <h4><%= link_to question.title, question %></h4>
             <div class="question-stats">
               <span><%= pluralize(question.responses.count, "answer") %></span>
-              <span><%= pluralize(question.vote_score, "vote") %></span>
+              <div class="vote-display compact">
+                <div class="vote-item upvotes <%= 'zero' if question.upvotes_count == 0 %>">
+                  <span class="vote-icon">👍</span>
+                  <span class="vote-count"><%= question.upvotes_count %></span>
+                </div>
+                <div class="vote-item downvotes <%= 'zero' if question.downvotes_count == 0 %>">
+                  <span class="vote-icon">👎</span>
+                  <span class="vote-count"><%= question.downvotes_count %></span>
+                </div>
+              </div>
             </div>
           </div>
         <% end %>

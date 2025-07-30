@@ -37,7 +37,16 @@
             <div class="question-item">
               <%= link_to question.title, question, class: "question-title" %>
               <div class="question-meta">
-                <span class="vote-count"><%= question.vote_score %> votes</span>
+                <div class="vote-display compact">
+                  <div class="vote-item upvotes <%= 'zero' if question.upvotes_count == 0 %>">
+                    <span class="vote-icon">👍</span>
+                    <span class="vote-count"><%= question.upvotes_count %></span>
+                  </div>
+                  <div class="vote-item downvotes <%= 'zero' if question.downvotes_count == 0 %>">
+                    <span class="vote-icon">👎</span>
+                    <span class="vote-count"><%= question.downvotes_count %></span>
+                  </div>
+                </div>
                 <span class="response-count"><%= question.responses.count %> responses</span>
                 <span class="date"><%= time_ago_in_words(question.created_at) %> ago</span>
               </div>

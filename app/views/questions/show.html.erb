@@ -22,20 +22,30 @@
     <div class="voting-panel">
       <% if current_user&.can_vote? %>
         <%= form_with url: vote_up_question_path(@question), method: :post, local: true, class: "vote-form" do %>
-          <button type="submit" class="vote-btn vote-up <%= 'active' if @question.votes.find_by(user: current_user)&.value == 1 %>">
-            ▲
+          <button type="submit" class="unified-vote-btn upvote <%= 'active' if @question.votes.find_by(user: current_user)&.value == 1 %>">
+            <span class="vote-icon">👍</span>
+            <span class="vote-count"><%= @question.upvotes_count %></span>
           </button>
         <% end %>
-      <% end %>
-      
-      <span class="vote-score"><%= @question.vote_score %></span>
-      
-      <% if current_user&.can_vote? %>
+        
         <%= form_with url: vote_down_question_path(@question), method: :post, local: true, class: "vote-form" do %>
-          <button type="submit" class="vote-btn vote-down <%= 'active' if @question.votes.find_by(user: current_user)&.value == -1 %>">
-            ▼
+          <button type="submit" class="unified-vote-btn downvote <%= 'active' if @question.votes.find_by(user: current_user)&.value == -1 %>">
+            <span class="vote-icon">👎</span>
+            <span class="vote-count"><%= @question.downvotes_count %></span>
           </button>
         <% end %>
+      <% else %>
+        <!-- Non-clickable display for users who can't vote -->
+        <div class="vote-display-only">
+          <div class="vote-item upvotes">
+            <span class="vote-icon">👍</span>
+            <span class="vote-count"><%= @question.upvotes_count %></span>
+          </div>
+          <div class="vote-item downvotes">
+            <span class="vote-icon">👎</span>
+            <span class="vote-count"><%= @question.downvotes_count %></span>
+          </div>
+        </div>
       <% end %>
     </div>
 
@@ -67,20 +77,30 @@
         <div class="voting-panel">
           <% if current_user&.can_vote? %>
             <%= form_with url: vote_up_response_path(response), method: :post, local: true, class: "vote-form" do %>
-              <button type="submit" class="vote-btn vote-up <%= 'active' if response.votes.find_by(user: current_user)&.value == 1 %>">
-                ▲
+              <button type="submit" class="unified-vote-btn upvote <%= 'active' if response.votes.find_by(user: current_user)&.value == 1 %>">
+                <span class="vote-icon">👍</span>
+                <span class="vote-count"><%= response.upvotes_count %></span>
               </button>
             <% end %>
-          <% end %>
-          
-          <span class="vote-score"><%= response.vote_score %></span>
-          
-          <% if current_user&.can_vote? %>
+            
             <%= form_with url: vote_down_response_path(response), method: :post, local: true, class: "vote-form" do %>
-              <button type="submit" class="vote-btn vote-down <%= 'active' if response.votes.find_by(user: current_user)&.value == -1 %>">
-                ▼
+              <button type="submit" class="unified-vote-btn downvote <%= 'active' if response.votes.find_by(user: current_user)&.value == -1 %>">
+                <span class="vote-icon">👎</span>
+                <span class="vote-count"><%= response.downvotes_count %></span>
               </button>
             <% end %>
+          <% else %>
+            <!-- Non-clickable display for users who can't vote -->
+            <div class="vote-display-only">
+              <div class="vote-item upvotes">
+                <span class="vote-icon">👍</span>
+                <span class="vote-count"><%= response.upvotes_count %></span>
+              </div>
+              <div class="vote-item downvotes">
+                <span class="vote-icon">👎</span>
+                <span class="vote-count"><%= response.downvotes_count %></span>
+              </div>
+            </div>
           <% end %>
 
           <% if current_user == @question.user && !response.is_accepted? %>

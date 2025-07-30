@@ -1010,4 +1010,403 @@ yout improvements for AI buttons */
     width: 100%;
     justify-content: flex-start;
   }
+}/* 
+Vote type indicators */
+.vote-score-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.vote-type-indicator {
+  font-size: 0.8rem;
+}
+
+.vote-type.upvotes {
+  color: #28a745;
+}
+
+.vote-type.downvotes {
+  color: #dc3545;
+}
+
+.stat-label .vote-type {
+  font-size: 0.7rem;
+}
+
+/* Enhanced vote display */
+.vote-count .vote-type {
+  font-size: 0.8rem;
+  margin-left: 0.25rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .vote-score-display {
+    gap: 0.1rem;
+  }
+  
+  .vote-type-indicator {
+    font-size: 0.7rem;
+  }
+}/* 
+Modern Vote Display System */
+.vote-display {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.vote-item {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 20px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  min-width: 45px;
+  justify-content: center;
+}
+
+.vote-item.upvotes {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+
+.vote-item.downvotes {
+  background: linear-gradient(135deg, #dc3545, #fd7e14);
+  color: white;
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+}
+
+.vote-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.vote-icon {
+  font-size: 1.1rem;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+}
+
+.vote-count {
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+/* Compact version for lists */
+.vote-display.compact {
+  gap: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.vote-display.compact .vote-item {
+  padding: 0.2rem 0.4rem;
+  min-width: 35px;
+  font-size: 0.8rem;
+}
+
+.vote-display.compact .vote-icon {
+  font-size: 1rem;
+}
+
+/* Large version for detail pages */
+.vote-display.large {
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.vote-display.large .vote-item {
+  padding: 0.5rem 0.75rem;
+  min-width: 60px;
+  font-size: 1rem;
+  border-radius: 25px;
+}
+
+.vote-display.large .vote-icon {
+  font-size: 1.3rem;
+}
+
+.vote-display.large .vote-count {
+  font-size: 1.1rem;
+}
+
+/* Stats display for question cards */
+.question-stats .vote-display {
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+/* Zero vote styling */
+.vote-item.zero {
+  background: linear-gradient(135deg, #6c757d, #adb5bd);
+  opacity: 0.7;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .vote-display {
+    gap: 0.5rem;
+    font-size: 0.8rem;
+  }
+  
+  .vote-display.large {
+    flex-direction: row;
+    gap: 0.5rem;
+  }
+  
+  .vote-item {
+    padding: 0.2rem 0.4rem;
+    min-width: 35px;
+  }
+}
+
+/* Animation for vote updates */
+@keyframes voteUpdate {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.vote-item.updated {
+  animation: voteUpdate 0.3s ease-in-out;
+}
+
+/* Special styling for accepted answers */
+.response-item.accepted .vote-display {
+  border: 2px solid #28a745;
+  border-radius: 8px;
+  padding: 0.5rem;
+  background: rgba(40, 167, 69, 0.05);
+}
+
+/* Vote display in voting panel */
+.voting-panel .vote-display {
+  margin: 0.5rem 0;
+}
+
+.voting-panel .vote-display.large .vote-item {
+  min-width: 50px;
+  font-size: 0.9rem;
+}/*
+ Unified Vote Button System - Better UX */
+.voting-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 80px;
+}
+
+.vote-form {
+  margin: 0;
+}
+
+.unified-vote-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 70px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.unified-vote-btn.upvote {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  border: 2px solid transparent;
+}
+
+.unified-vote-btn.upvote:hover {
+  background: linear-gradient(135deg, #20c997, #17a2b8);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+}
+
+.unified-vote-btn.upvote.active {
+  background: linear-gradient(135deg, #155724, #28a745);
+  border-color: #155724;
+  box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.3);
+}
+
+.unified-vote-btn.downvote {
+  background: linear-gradient(135deg, #dc3545, #fd7e14);
+  color: white;
+  border: 2px solid transparent;
+}
+
+.unified-vote-btn.downvote:hover {
+  background: linear-gradient(135deg, #fd7e14, #ffc107);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+}
+
+.unified-vote-btn.downvote.active {
+  background: linear-gradient(135deg, #721c24, #dc3545);
+  border-color: #721c24;
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.3);
+}
+
+.unified-vote-btn .vote-icon {
+  font-size: 1.2rem;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+}
+
+.unified-vote-btn .vote-count {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+/* Non-clickable vote display for readonly users */
+.vote-display-only {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.vote-display-only .vote-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 25px;
+  font-weight: 600;
+  min-width: 70px;
+  justify-content: center;
+  opacity: 0.8;
+}
+
+.vote-display-only .vote-item.upvotes {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+}
+
+.vote-display-only .vote-item.downvotes {
+  background: linear-gradient(135deg, #dc3545, #fd7e14);
+  color: white;
+}
+
+/* Accept button styling */
+.accept-btn {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  margin-top: 0.5rem;
+}
+
+.accept-btn:hover {
+  background: linear-gradient(135deg, #20c997, #17a2b8);
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+}
+
+/* Responsive design for unified buttons */
+@media (max-width: 768px) {
+  .unified-vote-btn {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+    min-width: 60px;
+  }
+  
+  .unified-vote-btn .vote-icon {
+    font-size: 1.1rem;
+  }
+  
+  .unified-vote-btn .vote-count {
+    font-size: 0.9rem;
+  }
+  
+  .voting-panel {
+    min-width: 70px;
+  }
+  
+  .vote-display-only .vote-item {
+    padding: 0.5rem 0.75rem;
+    min-width: 60px;
+  }
+}
+
+/* Animation for vote updates */
+@keyframes voteUpdate {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.unified-vote-btn.updated {
+  animation: voteUpdate 0.4s ease-in-out;
+}
+
+/* Special styling for accepted answers */
+.response-item.accepted .voting-panel {
+  border: 2px solid #28a745;
+  border-radius: 12px;
+  padding: 0.75rem;
+  background: rgba(40, 167, 69, 0.05);
+}/* Enhanc
+ed compact vote display for homepage */
+.question-stats .vote-display.compact {
+  margin-bottom: 0.75rem;
+}
+
+.question-stats .vote-display.compact .vote-item {
+  padding: 0.5rem 0.75rem;
+  min-width: 50px;
+  font-size: 0.9rem;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.question-stats .vote-display.compact .vote-count {
+  font-size: 0.9rem;
+  font-weight: 800;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.question-stats .vote-display.compact .vote-icon {
+  font-size: 1.1rem;
+  margin-right: 0.25rem;
+}
+
+/* Make zero votes more visible but still dimmed */
+.question-stats .vote-display.compact .vote-item.zero {
+  background: linear-gradient(135deg, #6c757d, #adb5bd);
+  opacity: 0.8;
+}
+
+.question-stats .vote-display.compact .vote-item.zero .vote-count {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Hover effect for better visibility */
+.question-card:hover .vote-display.compact .vote-item {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Ensure vote counts are clearly visible */
+.vote-display.compact .vote-count {
+  font-weight: 800;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  letter-spacing: 0.5px;
 }

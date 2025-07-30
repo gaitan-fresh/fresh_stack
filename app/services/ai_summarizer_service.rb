@@ -41,7 +41,9 @@ class AiSummarizerService
         body: response.body,
         author: response.user.name,
         is_accepted: response.is_accepted?,
-        vote_score: response.vote_score
+        vote_score: response.vote_score,
+        upvotes: response.upvotes_count,
+        downvotes: response.downvotes_count
       }
       content[:responses] << response_data
     end
@@ -77,7 +79,7 @@ class AiSummarizerService
       status = response[:is_accepted] ? " ✅ ACCEPTED" : ""
       prompt += <<~RESPONSE
 
-        Answer #{index + 1}#{status} (Score: #{response[:vote_score]}):
+        Answer #{index + 1}#{status} (👍 #{response[:upvotes]} | 👎 #{response[:downvotes]}):
         By: #{response[:author]}
         #{response[:body]}
       RESPONSE

@@ -28,9 +28,15 @@
     <% @questions.each do |question| %>
       <div class="question-card">
         <div class="question-stats">
-          <div class="stat">
-            <span class="stat-number"><%= question.vote_score %></span>
-            <span class="stat-label">votes</span>
+          <div class="vote-display compact">
+            <div class="vote-item upvotes <%= 'zero' if question.upvotes_count == 0 %>">
+              <span class="vote-icon">👍</span>
+              <span class="vote-count"><%= question.upvotes_count %></span>
+            </div>
+            <div class="vote-item downvotes <%= 'zero' if question.downvotes_count == 0 %>">
+              <span class="vote-icon">👎</span>
+              <span class="vote-count"><%= question.downvotes_count %></span>
+            </div>
           </div>
           <div class="stat">
             <span class="stat-number"><%= question.responses.count %></span>

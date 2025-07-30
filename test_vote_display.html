@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Vote Display Test</title>
+    <style>
+        /* Copy the relevant CSS for testing */
+        .vote-display {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.9rem;
+        }
+
+        .vote-display.compact {
+            gap: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .vote-display.compact .vote-item {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.4rem 0.6rem;
+            border-radius: 20px;
+            font-weight: 600;
+            min-width: 45px;
+            justify-content: center;
+            font-size: 0.85rem;
+        }
+
+        .vote-display.compact .vote-item.upvotes {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            box-shadow: 0 2px 6px rgba(40, 167, 69, 0.3);
+        }
+
+        .vote-display.compact .vote-item.downvotes {
+            background: linear-gradient(135deg, #dc3545, #fd7e14);
+            color: white;
+            box-shadow: 0 2px 6px rgba(220, 53, 69, 0.3);
+        }
+
+        .vote-display.compact .vote-item.zero {
+            background: linear-gradient(135deg, #6c757d, #adb5bd);
+            opacity: 0.6;
+        }
+
+        .vote-display.compact .vote-icon {
+            font-size: 1rem;
+        }
+
+        .vote-display.compact .vote-count {
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .test-card {
+            background: white;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>Vote Display Test</h1>
+    
+    <div class="test-card">
+        <h3>Question with votes</h3>
+        <div class="vote-display compact">
+            <div class="vote-item upvotes">
+                <span class="vote-icon">👍</span>
+                <span class="vote-count">5</span>
+            </div>
+            <div class="vote-item downvotes">
+                <span class="vote-icon">👎</span>
+                <span class="vote-count">2</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-card">
+        <h3>Question with zero votes</h3>
+        <div class="vote-display compact">
+            <div class="vote-item upvotes zero">
+                <span class="vote-icon">👍</span>
+                <span class="vote-count">0</span>
+            </div>
+            <div class="vote-item downvotes zero">
+                <span class="vote-icon">👎</span>
+                <span class="vote-count">0</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-card">
+        <h3>Question with only upvotes</h3>
+        <div class="vote-display compact">
+            <div class="vote-item upvotes">
+                <span class="vote-icon">👍</span>
+                <span class="vote-count">8</span>
+            </div>
+            <div class="vote-item downvotes zero">
+                <span class="vote-icon">👎</span>
+                <span class="vote-count">0</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

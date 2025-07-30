@@ -13,8 +13,20 @@ class Question < ApplicationRecord
   scope :by_tenant, ->(tenant) { where(tenant: tenant) }
   scope :search, ->(query) { where("title LIKE ? OR body LIKE ?", "%#{query}%", "%#{query}%") }
 
-  def vote_score
+  def upvotes_count
+    votes.upvotes.count
+  end
+
+  def downvotes_count
+    votes.downvotes.count
+  end
+
+  def net_vote_score
     votes.sum(:value)
+  end
+
+  def total_votes
+    upvotes_count + downvotes_count
   end
 
   def accepted_response
