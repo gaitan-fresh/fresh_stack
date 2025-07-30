@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_24_141429) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_30_095609) do
   create_table "blogs", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "title", null: false
     t.text "body", null: false
@@ -67,7 +67,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_24_141429) do
     t.bigint "tenant_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["name"], name: "index_tags_on_name", unique: true
+    t.index ["name", "tenant_id"], name: "index_tags_on_name_and_tenant_id", unique: true
     t.index ["tenant_id"], name: "index_tags_on_tenant_id"
   end
 
