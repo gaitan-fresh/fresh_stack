@@ -20,10 +20,12 @@ class QuestionsController < ApplicationController
   end
 
   def create
-    @question = current_tenant.questions.build(question_params)
+    @question = current_tenant.questions.build(question_params.except(:new_tags))
     @question.user = current_user
 
     if @question.save
+      # Process tags after saving the question
+      @question.process_tags(question_params[:tag_ids], question_params[:new_tags])
       redirect_to @question, notice: "Question created successfully!"
     else
       render :new, status: :unprocessable_entity
@@ -34,7 +36,9 @@ class QuestionsController < ApplicationController
   end
 
   def update
-    if @question.update(question_params)
+    if @question.update(question_params.except(:new_tags))
+      # Process tags after updating the question
+      @question.process_tags(question_params[:tag_ids], question_params[:new_tags])
       redirect_to @question, notice: "Question updated successfully!"
     else
       render :edit, status: :unprocessable_entity
@@ -85,7 +89,7 @@ class QuestionsController < ApplicationController
   end
 
   def question_params
-    params.require(:question).permit(:title, :body, tag_ids: [])
+    params.require(:question).permit(:title, :body, :new_tags, tag_ids: [])
   end
 
   def vote(value)

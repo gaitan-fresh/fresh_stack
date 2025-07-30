@@ -1,0 +1,50 @@
+<% content_for :title, "All Tags - Fresh Stack" %>
+
+<div class="tags-container">
+  <div class="tags-header">
+    <div class="header-content">
+      <h1>Tags</h1>
+      <p class="subtitle">Browse questions and blogs by topic</p>
+    </div>
+
+    <div class="search-filters">
+      <%= form_with url: tags_path, method: :get, local: true, class: "search-form" do |form| %>
+        <%= form.text_field :search, placeholder: "Search tags...", value: params[:search], class: "form-control search-input" %>
+        <%= form.submit "Search", class: "btn btn-secondary" %>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="tags-grid">
+    <% if @tags.any? %>
+      <% @tags.each do |tag| %>
+        <div class="tag-card">
+          <%= link_to tag_path(tag.name), class: "tag-link" do %>
+            <div class="tag-name">
+              <span class="tag-badge large"><%= tag.name %></span>
+            </div>
+            <div class="tag-stats">
+              <div class="stat-item">
+                <span class="stat-number"><%= tag.taggings.size %></span>
+                <span class="stat-label">items</span>
+              </div>
+              <div class="stat-breakdown">
+                <span class="breakdown-item">
+                  <%= tag.taggings.select { |t| t.taggable_type == 'Question' }.count %> questions
+                </span>
+                <span class="breakdown-item">
+                  <%= tag.taggings.select { |t| t.taggable_type == 'Blog' }.count %> blogs
+                </span>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="empty-state">
+        <h3>No tags found</h3>
+        <p>Tags will appear here as questions and blogs are created.</p>
+      </div>
+    <% end %>
+  </div>
+</div>

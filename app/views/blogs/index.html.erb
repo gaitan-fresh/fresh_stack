@@ -29,7 +29,7 @@
 
           <div class="blog-tags">
             <% blog.tags.each do |tag| %>
-              <%= link_to tag.name, blogs_path(tag: tag.name), class: "tag-badge" %>
+              <%= link_to tag.name, tag_path(tag.name), class: "tag-badge" %>
             <% end %>
           </div>
 

@@ -1,2 +1,61 @@
-<h1>Blogs#edit</h1>
-<p>Find me in app/views/blogs/edit.html.erb</p>
+<% content_for :title, "Edit Blog Post - Fresh Stack" %>
+
+<div class="form-container">
+  <h1>Edit Blog Post</h1>
+  
+  <%= form_with model: @blog, local: true, class: "form" do |form| %>
+    <% if @blog.errors.any? %>
+      <div class="alert alert-danger">
+        <h4><%= pluralize(@blog.errors.count, "error") %> prohibited this blog post from being saved:</h4>
+        <ul>
+          <% @blog.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="form-group">
+      <%= form.label :title, class: "form-label" %>
+      <%= form.text_field :title, class: "form-control" %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :body, "Content", class: "form-label" %>
+      <%= form.text_area :body, rows: 12, class: "form-control" %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :tag_ids, "Existing Tags", class: "form-label" %>
+      <%= form.collection_check_boxes :tag_ids, current_tenant.tags, :id, :name do |b| %>
+        <div class="checkbox-item">
+          <%= b.check_box(class: "form-check-input") %>
+          <%= b.label(class: "form-check-label") %>
+        </div>
+      <% end %>
+      <small class="form-text">Select from existing tags</small>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :new_tags, "New Tags", class: "form-label" %>
+      <%= form.text_field :new_tags, class: "form-control", placeholder: "Enter new tags separated by commas (e.g., tutorial, beginner, tips)" %>
+      <small class="form-text">Add new tags separated by commas. They will be created automatically.</small>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :question_ids, "Related Questions", class: "form-label" %>
+      <%= form.collection_check_boxes :question_ids, current_tenant.questions, :id, :title do |b| %>
+        <div class="checkbox-item">
+          <%= b.check_box(class: "form-check-input") %>
+          <%= b.label(class: "form-check-label") %>
+        </div>
+      <% end %>
+      <small class="form-text">Link this blog post to related questions</small>
+    </div>
+
+    <div class="form-actions">
+      <%= form.submit "Update Post", class: "btn btn-primary" %>
+      <%= link_to "Cancel", @blog, class: "btn btn-secondary" %>
+    </div>
+  <% end %>
+</div>

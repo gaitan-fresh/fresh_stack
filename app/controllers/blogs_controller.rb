@@ -16,10 +16,12 @@ class BlogsController < ApplicationController
   end
 
   def create
-    @blog = current_tenant.blogs.build(blog_params)
+    @blog = current_tenant.blogs.build(blog_params.except(:new_tags))
     @blog.user = current_user
 
     if @blog.save
+      # Process tags after saving the blog
+      @blog.process_tags(blog_params[:tag_ids], blog_params[:new_tags])
       redirect_to @blog, notice: "Blog post created successfully!"
     else
       render :new, status: :unprocessable_entity
@@ -33,7 +35,9 @@ class BlogsController < ApplicationController
   def update
     redirect_to root_path unless @blog.user == current_user
 
-    if @blog.update(blog_params)
+    if @blog.update(blog_params.except(:new_tags))
+      # Process tags after updating the blog
+      @blog.process_tags(blog_params[:tag_ids], blog_params[:new_tags])
       redirect_to @blog, notice: "Blog post updated successfully!"
     else
       render :edit, status: :unprocessable_entity
@@ -78,6 +82,6 @@ class BlogsController < ApplicationController
   end
 
   def blog_params
-    params.require(:blog).permit(:title, :body, tag_ids: [], question_ids: [])
+    params.require(:blog).permit(:title, :body, :new_tags, tag_ids: [], question_ids: [])
   end
 end

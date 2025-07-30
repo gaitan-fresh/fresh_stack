@@ -65,7 +65,7 @@
 
           <div class="question-tags">
             <% question.tags.each do |tag| %>
-              <%= link_to tag.name, questions_path(tag: tag.name), class: "tag-badge" %>
+              <%= link_to tag.name, tag_path(tag.name), class: "tag-badge" %>
             <% end %>
           </div>
         </div>

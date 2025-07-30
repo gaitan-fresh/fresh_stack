@@ -1,0 +1,164 @@
+<% content_for :title, "#{@tag.name} - Fresh Stack" %>
+
+<div class="tag-detail-container">
+  <div class="tag-header">
+    <div class="tag-info">
+      <h1>
+        <span class="tag-badge large"><%= @tag.name %></span>
+      </h1>
+      <div class="tag-stats">
+        <span class="stat-item">
+          <strong><%= @questions.count %></strong> questions
+        </span>
+        <span class="stat-item">
+          <strong><%= @blogs.count %></strong> blogs
+        </span>
+      </div>
+    </div>
+    
+    <div class="tag-actions">
+      <%= link_to "All Tags", tags_path, class: "btn btn-outline" %>
+    </div>
+  </div>
+
+  <!-- Questions Section -->
+  <% if @questions.any? %>
+    <div class="content-section">
+      <div class="section-header">
+        <h2>Questions tagged with "<%= @tag.name %>"</h2>
+        <span class="count"><%= pluralize(@questions.count, 'question') %></span>
+      </div>
+
+      <div class="questions-list">
+        <% @questions.each do |question| %>
+          <div class="question-card">
+            <!-- Column 1: Stats -->
+            <div class="question-stats-column">
+              <div class="vote-display compact">
+                <div class="vote-item upvotes <%= 'zero' if question.upvotes_count == 0 %>">
+                  <span class="vote-icon">👍</span>
+                  <span class="vote-count"><%= question.upvotes_count %></span>
+                </div>
+                <div class="vote-item downvotes <%= 'zero' if question.downvotes_count == 0 %>">
+                  <span class="vote-icon">👎</span>
+                  <span class="vote-count"><%= question.downvotes_count %></span>
+                </div>
+              </div>
+              
+              <div class="answer-stat">
+                <span class="stat-number"><%= question.responses.count %></span>
+                <span class="stat-label">answers</span>
+              </div>
+              
+              <% if question.accepted_response %>
+                <div class="accepted-stat">
+                  <span class="stat-icon">✓</span>
+                  <span class="stat-label">accepted</span>
+                </div>
+              <% end %>
+            </div>
+
+            <!-- Column 2: Content -->
+            <div class="question-content-column">
+              <h3 class="question-title">
+                <%= link_to question.title, question %>
+              </h3>
+              
+              <div class="question-excerpt">
+                <%= truncate(strip_tags(question.body), length: 200) %>
+              </div>
+
+              <div class="question-tags">
+                <% question.tags.each do |tag| %>
+                  <%= link_to tag.name, tag_path(tag.name), class: "tag-badge #{'current' if tag == @tag}" %>
+                <% end %>
+              </div>
+            </div>
+
+            <!-- Column 3: Meta -->
+            <div class="question-meta-column">
+              <div class="author-info">
+                <span class="author">
+                  asked by <%= link_to question.user.name, question.user %>
+                </span>
+                <span class="date">
+                  <%= time_ago_in_words(question.created_at) %> ago
+                </span>
+              </div>
+              
+              <div class="question-actions">
+                <button class="ai-summarize-btn" 
+                        data-url="<%= summarize_question_path(question) %>"
+                        data-title="<%= question.title %>">
+                  <span class="magic-wand">🪄</span>
+                  AI Summary
+                </button>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Blogs Section -->
+  <% if @blogs.any? %>
+    <div class="content-section">
+      <div class="section-header">
+        <h2>Blog posts tagged with "<%= @tag.name %>"</h2>
+        <span class="count"><%= pluralize(@blogs.count, 'post') %></span>
+      </div>
+
+      <div class="blogs-list">
+        <% @blogs.each do |blog| %>
+          <div class="blog-card">
+            <h3 class="blog-title">
+              <%= link_to blog.title, blog %>
+            </h3>
+            
+            <div class="blog-excerpt">
+              <%= truncate(strip_tags(blog.body), length: 300) %>
+            </div>
+
+            <div class="blog-tags">
+              <% blog.tags.each do |tag| %>
+                <%= link_to tag.name, tag_path(tag.name), class: "tag-badge #{'current' if tag == @tag}" %>
+              <% end %>
+            </div>
+
+            <div class="blog-meta">
+              <div class="meta-left">
+                <span class="author">
+                  by <%= link_to blog.user.name, blog.user %>
+                </span>
+                <span class="date">
+                  <%= time_ago_in_words(blog.created_at) %> ago
+                </span>
+              </div>
+              
+              <div class="meta-right">
+                <button class="ai-summarize-btn" 
+                        data-url="<%= summarize_blog_path(blog) %>"
+                        data-title="<%= blog.title %>">
+                  <span class="magic-wand">🪄</span>
+                  AI Summary
+                </button>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Empty State -->
+  <% if @questions.empty? && @blogs.empty? %>
+    <div class="empty-state">
+      <h3>No content found</h3>
+      <p>There are no questions or blog posts tagged with "<%= @tag.name %>" yet.</p>
+      <% if current_user&.can_post_questions? %>
+        <%= link_to "Ask a question", new_question_path, class: "btn btn-primary" %>
+      <% end %>
+    </div>
+  <% end %>
+</div>
