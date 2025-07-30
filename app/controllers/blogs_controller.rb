@@ -1,5 +1,5 @@
 class BlogsController < ApplicationController
-  before_action :set_blog, only: [ :show, :edit, :update, :destroy ]
+  before_action :set_blog, only: [ :show, :edit, :update, :destroy, :summarize ]
 
   def index
     @blogs = current_tenant.blogs.includes(:user, :tags)
@@ -52,6 +52,23 @@ class BlogsController < ApplicationController
     @blogs = @blogs.search(params[:q]) if params[:q].present?
     @blogs = @blogs.order(created_at: :desc)
     render :index
+  end
+
+  def summarize
+    ai_service = AiSummarizerService.new
+    summary = ai_service.summarize_blog(@blog)
+
+    render json: {
+      success: true,
+      summary: summary,
+      blog_title: @blog.title
+    }
+  rescue => e
+    Rails.logger.error "Blog summarization failed: #{e.message}"
+    render json: {
+      success: false,
+      error: "Failed to generate summary. Please try again."
+    }, status: :unprocessable_entity
   end
 
   private

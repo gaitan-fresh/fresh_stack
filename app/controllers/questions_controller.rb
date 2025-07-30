@@ -1,5 +1,5 @@
 class QuestionsController < ApplicationController
-  before_action :set_question, only: [ :show, :edit, :update, :destroy, :vote_up, :vote_down ]
+  before_action :set_question, only: [ :show, :edit, :update, :destroy, :vote_up, :vote_down, :summarize ]
   before_action :require_admin!, only: [ :new, :create, :edit, :update, :destroy ]
   before_action :require_can_vote!, only: [ :vote_up, :vote_down ]
 
@@ -59,6 +59,23 @@ class QuestionsController < ApplicationController
     @questions = @questions.search(params[:q]) if params[:q].present?
     @questions = @questions.order(created_at: :desc)
     render :index
+  end
+
+  def summarize
+    ai_service = AiSummarizerService.new
+    summary = ai_service.summarize_question(@question)
+
+    render json: {
+      success: true,
+      summary: summary,
+      question_title: @question.title
+    }
+  rescue => e
+    Rails.logger.error "Question summarization failed: #{e.message}"
+    render json: {
+      success: false,
+      error: "Failed to generate summary. Please try again."
+    }, status: :unprocessable_entity
   end
 
   private

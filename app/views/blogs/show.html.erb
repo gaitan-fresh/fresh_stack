@@ -4,6 +4,13 @@
   <header class="blog-header">
     <h1><%= @blog.title %></h1>
     <div class="blog-actions">
+      <button class="ai-summarize-btn" 
+              data-url="<%= summarize_blog_path(@blog) %>"
+              data-title="<%= @blog.title %>">
+        <span class="magic-wand">🪄</span>
+        Summarize with AI
+      </button>
+      
       <% if current_user == @blog.user %>
         <%= link_to "Edit", edit_blog_path(@blog), class: "btn btn-sm btn-outline" %>
         <%= link_to "Delete", @blog, data: { "turbo-method": :delete, "turbo-confirm": "Are you sure?" }, class: "btn btn-sm btn-danger" %>

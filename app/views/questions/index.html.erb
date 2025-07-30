@@ -60,12 +60,22 @@
           </div>
 
           <div class="question-meta">
-            <span class="author">
-              asked by <%= link_to question.user.name, question.user %>
-            </span>
-            <span class="date">
-              <%= time_ago_in_words(question.created_at) %> ago
-            </span>
+            <div class="meta-left">
+              <span class="author">
+                asked by <%= link_to question.user.name, question.user %>
+              </span>
+              <span class="date">
+                <%= time_ago_in_words(question.created_at) %> ago
+              </span>
+            </div>
+            <div class="meta-right">
+              <button class="ai-summarize-btn" 
+                      data-url="<%= summarize_question_path(question) %>"
+                      data-title="<%= question.title %>">
+                <span class="magic-wand">🪄</span>
+                AI Summary
+              </button>
+            </div>
           </div>
         </div>
       </div>

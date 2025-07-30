@@ -34,17 +34,27 @@
           </div>
 
           <div class="blog-meta">
-            <span class="author">
-              by <%= link_to blog.user.name, blog.user %>
-            </span>
-            <span class="date">
-              <%= blog.created_at.strftime("%B %d, %Y") %>
-            </span>
-            <% if blog.questions.any? %>
-              <span class="related-questions">
-                Related to <%= pluralize(blog.questions.count, "question") %>
+            <div class="meta-left">
+              <span class="author">
+                by <%= link_to blog.user.name, blog.user %>
               </span>
-            <% end %>
+              <span class="date">
+                <%= blog.created_at.strftime("%B %d, %Y") %>
+              </span>
+              <% if blog.questions.any? %>
+                <span class="related-questions">
+                  Related to <%= pluralize(blog.questions.count, "question") %>
+                </span>
+              <% end %>
+            </div>
+            <div class="meta-right">
+              <button class="ai-summarize-btn" 
+                      data-url="<%= summarize_blog_path(blog) %>"
+                      data-title="<%= blog.title %>">
+                <span class="magic-wand">🪄</span>
+                AI Summary
+              </button>
+            </div>
           </div>
         </div>
       </article>

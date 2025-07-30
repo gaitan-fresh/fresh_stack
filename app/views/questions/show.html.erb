@@ -4,6 +4,13 @@
   <div class="question-header">
     <h1><%= @question.title %></h1>
     <div class="question-actions">
+      <button class="ai-summarize-btn" 
+              data-url="<%= summarize_question_path(@question) %>"
+              data-title="<%= @question.title %>">
+        <span class="magic-wand">🪄</span>
+        Summarize with AI
+      </button>
+      
       <% if current_user == @question.user %>
         <%= link_to "Edit", edit_question_path(@question), class: "btn btn-sm btn-outline" %>
         <%= link_to "Delete", @question, data: { "turbo-method": :delete, "turbo-confirm": "Are you sure?" }, class: "btn btn-sm btn-danger" %>

@@ -15,6 +15,7 @@ Rails.application.routes.draw do
     member do
       post :vote_up
       post :vote_down
+      post :summarize
     end
     collection do
       get :search
@@ -34,6 +35,7 @@ Rails.application.routes.draw do
     member do
       post :vote_up
       post :vote_down
+      post :summarize
     end
     collection do
       get :search
