@@ -16,12 +16,16 @@ class BlogsController < ApplicationController
   end
 
   def create
-    @blog = current_tenant.blogs.build(blog_params.except(:new_tags))
+    @blog = current_tenant.blogs.build(blog_params.except(:new_tags, :images))
     @blog.user = current_user
 
     if @blog.save
       # Process tags after saving the blog
       @blog.process_tags(blog_params[:tag_ids], blog_params[:new_tags])
+
+      # Handle image attachments
+      attach_images_to_blog if blog_params[:images].present?
+
       redirect_to @blog, notice: "Blog post created successfully!"
     else
       render :new, status: :unprocessable_entity
@@ -35,9 +39,13 @@ class BlogsController < ApplicationController
   def update
     redirect_to root_path unless @blog.user == current_user
 
-    if @blog.update(blog_params.except(:new_tags))
+    if @blog.update(blog_params.except(:new_tags, :images))
       # Process tags after updating the blog
       @blog.process_tags(blog_params[:tag_ids], blog_params[:new_tags])
+
+      # Handle image attachments
+      attach_images_to_blog if blog_params[:images].present?
+
       redirect_to @blog, notice: "Blog post updated successfully!"
     else
       render :edit, status: :unprocessable_entity
@@ -82,6 +90,29 @@ class BlogsController < ApplicationController
   end
 
   def blog_params
-    params.require(:blog).permit(:title, :body, :new_tags, tag_ids: [], question_ids: [])
+    params.require(:blog).permit(:title, :body, :new_tags, tag_ids: [], question_ids: [], images: [])
+  end
+
+  def attach_images_to_blog
+    blog_params[:images].each do |image|
+      next if image.blank?
+
+      # Attach the image
+      @blog.images.attach(image)
+
+      # Associate with tenant for security
+      if @blog.images.attached?
+        @blog.images.blobs.each do |blob|
+          TenantImageService.attach_to_tenant(blob, current_tenant)
+        end
+      end
+    end
+
+    # Generate thumbnails in background
+    if @blog.images.attached?
+      @blog.images.blobs.each do |blob|
+        ImageProcessingJob.perform_later(blob.id, current_tenant.id, [ :thumbnail, :small ])
+      end
+    end
   end
 end
