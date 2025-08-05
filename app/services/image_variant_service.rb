@@ -10,14 +10,28 @@ class ImageVariantService
   class << self
     # Generate a specific variant for an image
     def variant_for(image, size)
-      return nil unless image.attached? && VARIANTS.key?(size)
-
-      image.variant(VARIANTS[size])
+      # Handle both attachment collections and individual attachments
+      if image.respond_to?(:attached?)
+        return nil unless image.attached? && VARIANTS.key?(size)
+        image.variant(VARIANTS[size])
+      elsif image.respond_to?(:blob) && image.blob.present?
+        return nil unless VARIANTS.key?(size)
+        image.variant(VARIANTS[size])
+      else
+        nil
+      end
     end
 
     # Generate all variants for an image (useful for preloading)
     def generate_all_variants(image)
-      return {} unless image.attached?
+      # Handle both attachment collections and individual attachments
+      if image.respond_to?(:attached?)
+        return {} unless image.attached?
+      elsif image.respond_to?(:blob)
+        return {} unless image.blob.present?
+      else
+        return {}
+      end
 
       variants = {}
       VARIANTS.each do |size, options|
@@ -28,32 +42,58 @@ class ImageVariantService
 
     # Get variant URL with fallback
     def variant_url(image, size, fallback: nil)
-      return fallback unless image.attached? && VARIANTS.key?(size)
+      return fallback unless VARIANTS.key?(size)
+
+      # Handle both attachment collections and individual attachments
+      if image.respond_to?(:attached?)
+        return fallback unless image.attached?
+      elsif image.respond_to?(:blob)
+        return fallback unless image.blob.present?
+      else
+        return fallback
+      end
 
       begin
-        Rails.application.routes.url_helpers.rails_blob_url(
-          image.variant(VARIANTS[size]),
-          only_path: true
-        )
+        variant = image.variant(VARIANTS[size])
+        Rails.application.routes.url_helpers.rails_blob_url(variant, only_path: true)
       rescue => e
         Rails.logger.error "Failed to generate variant URL: #{e.message}"
+        Rails.logger.error "Backtrace: #{e.backtrace.first(3).join(', ')}"
         fallback
       end
     end
 
     # Check if an image can be processed (has valid content type)
     def processable?(image)
-      return false unless image.attached?
+      # Handle both attachment collections and individual attachments
+      if image.respond_to?(:attached?)
+        return false unless image.attached?
+        blob = image.blob
+      elsif image.respond_to?(:blob)
+        return false unless image.blob.present?
+        blob = image.blob
+      else
+        return false
+      end
 
       processable_types = %w[image/jpeg image/jpg image/png image/gif image/webp]
-      processable_types.include?(image.blob.content_type)
+      processable_types.include?(blob.content_type)
     end
 
     # Get image dimensions from metadata
     def dimensions(image)
-      return { width: 0, height: 0 } unless image.attached?
+      # Handle both attachment collections and individual attachments
+      if image.respond_to?(:attached?)
+        return { width: 0, height: 0 } unless image.attached?
+        blob = image.blob
+      elsif image.respond_to?(:blob)
+        return { width: 0, height: 0 } unless image.blob.present?
+        blob = image.blob
+      else
+        return { width: 0, height: 0 }
+      end
 
-      metadata = image.blob.metadata
+      metadata = blob.metadata
       {
         width: metadata["width"] || 0,
         height: metadata["height"] || 0
@@ -70,7 +110,14 @@ class ImageVariantService
 
     # Generate responsive image srcset
     def responsive_srcset(image, sizes = [ :small, :medium, :large ])
-      return "" unless image.attached?
+      # Handle both attachment collections and individual attachments
+      if image.respond_to?(:attached?)
+        return "" unless image.attached?
+      elsif image.respond_to?(:blob)
+        return "" unless image.blob.present?
+      else
+        return ""
+      end
 
       srcset_parts = []
       sizes.each do |size|
@@ -98,7 +145,14 @@ class ImageVariantService
       return unless images.respond_to?(:each)
 
       images.each do |image|
-        next unless image.attached?
+        # Handle both attachment collections and individual attachments
+        if image.respond_to?(:attached?)
+          next unless image.attached?
+        elsif image.respond_to?(:blob)
+          next unless image.blob.present?
+        else
+          next
+        end
 
         sizes.each do |size|
           # This will generate the variant if it doesn't exist
@@ -109,9 +163,18 @@ class ImageVariantService
 
     # Get file size in human readable format
     def human_file_size(image)
-      return "0 B" unless image.attached?
+      # Handle both attachment collections and individual attachments
+      if image.respond_to?(:attached?)
+        return "0 B" unless image.attached?
+        blob = image.blob
+      elsif image.respond_to?(:blob)
+        return "0 B" unless image.blob.present?
+        blob = image.blob
+      else
+        return "0 B"
+      end
 
-      size = image.blob.byte_size
+      size = blob.byte_size
       units = [ "B", "KB", "MB", "GB" ]
 
       return "#{size} B" if size < 1024

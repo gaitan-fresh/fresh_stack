@@ -1,0 +1,50 @@
+<% if images.attached? && images.any? %>
+  <div class="existing-images">
+    <h4>Current Images</h4>
+    <div class="image-management-grid">
+      <% images.each_with_index do |image, index| %>
+        <div class="image-management-item" data-image-id="<%= image.id %>">
+          <% begin %>
+            <% if image.blob.present? %>
+              <% image_url = Rails.application.routes.url_helpers.rails_blob_url(image, only_path: true) %>
+              <%= image_tag image_url, 
+                            class: "management-thumbnail",
+                            alt: "Image #{index + 1}",
+                            style: "width: 150px; height: 150px; object-fit: cover;" %>
+            <% else %>
+              <div class="image-error" style="width: 150px; height: 150px; background: #fff3cd; display: flex; align-items: center; justify-content: center; border: 1px solid #ffeaa7; border-radius: 4px;">
+                <div style="text-align: center; color: #856404; font-size: 0.8rem;">
+                  <div>📷</div>
+                  <small>Not Available</small>
+                </div>
+              </div>
+            <% end %>
+          <% rescue => e %>
+            <div class="image-error" style="width: 150px; height: 150px; background: #f8d7da; display: flex; align-items: center; justify-content: center; border: 1px solid #f5c6cb; border-radius: 4px;">
+              <div style="text-align: center; color: #721c24; font-size: 0.8rem;">
+                <div>⚠️</div>
+                <small>Error loading image</small>
+                <% if Rails.env.development? %>
+                  <br><small style="font-family: monospace; font-size: 0.7rem;"><%= e.message.truncate(30) %></small>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+          <div class="image-actions">
+            <button type="button" 
+                    class="delete-image-btn" 
+                    data-image-id="<%= image.id %>"
+                    title="Delete image (coming soon)"
+                    disabled
+                    style="opacity: 0.5; cursor: not-allowed;">
+              ×
+            </button>
+          </div>
+          <div class="image-filename" style="padding: 0.25rem; font-size: 0.75rem; color: #6c757d; text-align: center;">
+            <%= image.filename.to_s.truncate(20) %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>

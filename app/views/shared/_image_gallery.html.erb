@@ -1,0 +1,45 @@
+<% if images.attached? && images.any? %>
+  <div class="image-gallery" data-lightbox="content-gallery">
+    <% images.each_with_index do |image, index| %>
+      <div class="gallery-item" style="margin: 1rem; display: inline-block;">
+        <% begin %>
+          <% if image.blob.present? %>
+            <% image_url = Rails.application.routes.url_helpers.rails_blob_url(image, only_path: true) %>
+            <div style="border: 1px solid #dee2e6; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+              <%= image_tag image_url, 
+                            class: "gallery-thumbnail",
+                            alt: "Image #{index + 1}",
+                            style: "width: 300px; height: 200px; object-fit: cover; display: block;",
+                            data: { 
+                              lightbox_index: index,
+                              full_size: image_url
+                            } %>
+              <div style="padding: 0.5rem; background: #f8f9fa; text-align: center;">
+                <small style="color: #6c757d;"><%= image.filename %></small>
+              </div>
+            </div>
+          <% else %>
+            <div class="image-error" style="width: 300px; height: 200px; background: #fff3cd; display: flex; align-items: center; justify-content: center; border: 1px solid #ffeaa7; border-radius: 4px; margin: 1rem;">
+              <div style="text-align: center; color: #856404;">
+                <div style="font-size: 2rem;">📷</div>
+                <strong>Image Not Available</strong><br>
+                <small><%= image.filename if image.respond_to?(:filename) %></small>
+              </div>
+            </div>
+          <% end %>
+        <% rescue => e %>
+          <div class="image-error" style="width: 300px; height: 200px; background: #f8d7da; display: flex; align-items: center; justify-content: center; border: 1px solid #f5c6cb; border-radius: 4px; margin: 1rem;">
+            <div style="text-align: center; color: #721c24;">
+              <div style="font-size: 2rem;">⚠️</div>
+              <strong>Image Error</strong><br>
+              <small><%= image.filename if image.respond_to?(:filename) %></small>
+              <% if Rails.env.development? %>
+                <br><small style="font-family: monospace;"><%= e.message %></small>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+<% end %>

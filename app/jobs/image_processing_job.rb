@@ -1,33 +1,36 @@
 class ImageProcessingJob < ApplicationJob
   queue_as :default
 
-  def perform(image_id, tenant_id, variants = [ :thumbnail, :small ])
-    # Find the image blob
-    blob = ActiveStorage::Blob.find_by(id: image_id)
-    return unless blob
+  def perform(blob_id, tenant_id, variants = [ :thumbnail ])
+    blob = ActiveStorage::Blob.find_by(id: blob_id)
+    tenant = Tenant.find_by(id: tenant_id)
 
-    # Verify tenant access
-    return unless blob.tenant_id == tenant_id
+    return unless blob && tenant
 
-    # Find the attachment
-    attachment = ActiveStorage::Attachment.find_by(blob_id: blob.id)
-    return unless attachment
+    # Ensure blob belongs to tenant
+    unless TenantImageService.tenant_accessible?(blob, tenant)
+      Rails.logger.warn "Attempted to process blob #{blob_id} for unauthorized tenant #{tenant_id}"
+      return
+    end
 
-    begin
-      # Generate specified variants
-      variants.each do |variant_name|
-        next unless ImageVariantService::VARIANTS.key?(variant_name)
+    # Generate requested variants
+    variants.each do |variant_name|
+      begin
+        case variant_name
+        when :thumbnail
+          blob.variant(resize_to_limit: [ 150, 150 ]).processed
+        when :small
+          blob.variant(resize_to_limit: [ 300, 200 ]).processed
+        when :medium
+          blob.variant(resize_to_limit: [ 600, 400 ]).processed
+        when :large
+          blob.variant(resize_to_limit: [ 1200, 800 ]).processed
+        end
 
-        variant_options = ImageVariantService::VARIANTS[variant_name]
-
-        # This will generate and store the variant
-        attachment.variant(variant_options).processed
-
-        Rails.logger.info "Generated #{variant_name} variant for image #{image_id}"
+        Rails.logger.info "Generated #{variant_name} variant for blob #{blob_id}"
+      rescue => e
+        Rails.logger.error "Failed to generate #{variant_name} variant for blob #{blob_id}: #{e.message}"
       end
-    rescue => e
-      Rails.logger.error "Failed to process image variants for #{image_id}: #{e.message}"
-      raise e
     end
   end
 end

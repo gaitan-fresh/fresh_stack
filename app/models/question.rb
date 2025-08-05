@@ -46,7 +46,9 @@ class Question < ApplicationRecord
 
   # Image helper methods
   def thumbnail_images
-    images.map { |img| ImageVariantService.variant_for(img, :thumbnail) }.compact
+    # Temporarily disabled until image processing is set up
+    # images.map { |img| ImageVariantService.variant_for(img, :thumbnail) }.compact
+    images
   end
 
   def has_images?

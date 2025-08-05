@@ -94,24 +94,40 @@ class BlogsController < ApplicationController
   end
 
   def attach_images_to_blog
+    return unless blog_params[:images].present?
+
     blog_params[:images].each do |image|
       next if image.blank?
 
-      # Attach the image
-      @blog.images.attach(image)
+      begin
+        # Attach the image to the blog
+        @blog.images.attach(image)
+        Rails.logger.info "Attached image: #{image.original_filename} to blog #{@blog.id}"
+      rescue => e
+        Rails.logger.error "Failed to attach image: #{e.message}"
+        next
+      end
+    end
 
-      # Associate with tenant for security
-      if @blog.images.attached?
-        @blog.images.blobs.each do |blob|
+    # Associate newly attached blobs with tenant
+    if @blog.images.attached?
+      @blog.images.blobs.each do |blob|
+        begin
           TenantImageService.attach_to_tenant(blob, current_tenant)
+        rescue => e
+          Rails.logger.error "Failed to associate blob with tenant: #{e.message}"
         end
       end
     end
 
-    # Generate thumbnails in background
+    # Generate thumbnails in background (optional - can be disabled for debugging)
     if @blog.images.attached?
       @blog.images.blobs.each do |blob|
-        ImageProcessingJob.perform_later(blob.id, current_tenant.id, [ :thumbnail, :small ])
+        begin
+          ImageProcessingJob.perform_later(blob.id, current_tenant.id, [ :thumbnail, :small ])
+        rescue => e
+          Rails.logger.error "Failed to queue image processing job: #{e.message}"
+        end
       end
     end
   end

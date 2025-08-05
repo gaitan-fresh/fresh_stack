@@ -1,6 +1,9 @@
 Rails.application.routes.draw do
   root "questions#index"
 
+  # Active Storage routes are automatically included in Rails 8
+  # No need to manually define them unless customization is needed
+
   # Authentication routes
   resources :sessions, only: [ :new, :create, :destroy ]
   resources :users, only: [ :new, :create, :show ]
