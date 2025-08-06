@@ -16,12 +16,16 @@ class BlogsController < ApplicationController
   end
 
   def create
-    @blog = current_tenant.blogs.build(blog_params.except(:new_tags))
+    @blog = current_tenant.blogs.build(blog_params.except(:new_tags, :images))
     @blog.user = current_user
 
     if @blog.save
       # Process tags after saving the blog
       @blog.process_tags(blog_params[:tag_ids], blog_params[:new_tags])
+
+      # Handle image attachments
+      attach_images_to_blog if blog_params[:images].present?
+
       redirect_to @blog, notice: "Blog post created successfully!"
     else
       render :new, status: :unprocessable_entity
@@ -35,9 +39,13 @@ class BlogsController < ApplicationController
   def update
     redirect_to root_path unless @blog.user == current_user
 
-    if @blog.update(blog_params.except(:new_tags))
+    if @blog.update(blog_params.except(:new_tags, :images))
       # Process tags after updating the blog
       @blog.process_tags(blog_params[:tag_ids], blog_params[:new_tags])
+
+      # Handle image attachments
+      attach_images_to_blog if blog_params[:images].present?
+
       redirect_to @blog, notice: "Blog post updated successfully!"
     else
       render :edit, status: :unprocessable_entity
@@ -82,6 +90,45 @@ class BlogsController < ApplicationController
   end
 
   def blog_params
-    params.require(:blog).permit(:title, :body, :new_tags, tag_ids: [], question_ids: [])
+    params.require(:blog).permit(:title, :body, :new_tags, tag_ids: [], question_ids: [], images: [])
+  end
+
+  def attach_images_to_blog
+    return unless blog_params[:images].present?
+
+    blog_params[:images].each do |image|
+      next if image.blank?
+
+      begin
+        # Attach the image to the blog
+        @blog.images.attach(image)
+        Rails.logger.info "Attached image: #{image.original_filename} to blog #{@blog.id}"
+      rescue => e
+        Rails.logger.error "Failed to attach image: #{e.message}"
+        next
+      end
+    end
+
+    # Associate newly attached blobs with tenant
+    if @blog.images.attached?
+      @blog.images.blobs.each do |blob|
+        begin
+          TenantImageService.attach_to_tenant(blob, current_tenant)
+        rescue => e
+          Rails.logger.error "Failed to associate blob with tenant: #{e.message}"
+        end
+      end
+    end
+
+    # Generate thumbnails in background (optional - can be disabled for debugging)
+    if @blog.images.attached?
+      @blog.images.blobs.each do |blob|
+        begin
+          ImageProcessingJob.perform_later(blob.id, current_tenant.id, [ :thumbnail, :small ])
+        rescue => e
+          Rails.logger.error "Failed to queue image processing job: #{e.message}"
+        end
+      end
+    end
   end
 end

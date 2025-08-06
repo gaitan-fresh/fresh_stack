@@ -1,0 +1,79 @@
+<% unique_id = "#{field_name.gsub(/[\[\]]/, '_')}_#{SecureRandom.hex(4)}" %>
+
+<div class="image-upload-container" 
+     data-max-files="<%= max_files %>" 
+     data-max-size="<%= max_size %>"
+     data-unique-id="<%= unique_id %>">
+  
+  <input type="file" 
+         multiple 
+         accept="image/*" 
+         class="file-input" 
+         name="<%= field_name %>"
+         id="<%= unique_id %>"
+         style="position: absolute; left: -9999px; opacity: 0;">
+  
+  <div class="upload-dropzone" onclick="document.getElementById('<%= unique_id %>').click()">
+    <div class="upload-prompt">
+      <div class="upload-icon">📷</div>
+      <p>Drag & drop images here or click to browse</p>
+      <small>Max <%= max_files %> images, <%= max_size / 1024 / 1024 %>MB each</small>
+    </div>
+  </div>
+  
+  <!-- Direct button approach -->
+  <div class="upload-fallback" style="margin-top: 1rem; text-align: center;">
+    <button type="button" 
+            class="btn btn-secondary btn-sm" 
+            onclick="document.getElementById('<%= unique_id %>').click()">
+      📁 Choose Files
+    </button>
+  </div>
+  
+  <div class="image-previews">
+    <!-- Dynamic preview thumbnails will be added here -->
+  </div>
+  
+  <div class="upload-progress" style="display: none;">
+    <div class="progress-bar">
+      <div class="progress-fill"></div>
+    </div>
+    <span class="progress-text">Uploading...</span>
+  </div>
+</div>  
+  
+<script>
+    (function() {
+      // Immediate execution to ensure it runs
+      const fileInput = document.getElementById('<%= unique_id %>');
+      const container = document.querySelector('[data-unique-id="<%= unique_id %>"]');
+      const previews = container ? container.querySelector('.image-previews') : null;
+      
+      console.log('Debug info:', {
+        fileInputId: '<%= unique_id %>',
+        fileInput: fileInput,
+        container: container
+      });
+      
+      if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+          console.log('✅ File input changed! Files:', e.target.files.length);
+          
+          if (previews && e.target.files.length > 0) {
+            let html = '<div style="margin-top: 1rem; padding: 1rem; background: #e8f5e8; border-radius: 4px;">';
+            html += '<strong>✅ Files selected: ' + e.target.files.length + '</strong><br>';
+            
+            for (let i = 0; i < e.target.files.length; i++) {
+              const file = e.target.files[i];
+              html += '• ' + file.name + ' (' + Math.round(file.size / 1024) + ' KB)<br>';
+            }
+            html += '</div>';
+            
+            previews.innerHTML = html;
+          }
+        });
+      } else {
+        console.error('❌ File input not found with ID: <%= unique_id %>');
+      }
+    })();
+  </script>

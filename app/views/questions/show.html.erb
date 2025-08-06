@@ -65,6 +65,10 @@
         <%= simple_format(@question.body) %>
       </div>
 
+
+
+      <%= render 'shared/image_gallery', images: @question.images %>
+
       <div class="question-tags">
         <% @question.tags.each do |tag| %>
           <%= link_to tag.name, tag_path(tag.name), class: "tag-badge" %>

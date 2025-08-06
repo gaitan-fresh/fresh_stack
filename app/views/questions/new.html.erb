@@ -3,7 +3,7 @@
 <div class="form-container">
   <h1>Ask a Question</h1>
   
-  <%= form_with model: @question, local: true, class: "form" do |form| %>
+  <%= form_with model: @question, local: true, multipart: true, class: "form" do |form| %>
     <% if @question.errors.any? %>
       <div class="alert alert-danger">
         <h4><%= pluralize(@question.errors.count, "error") %> prohibited this question from being saved:</h4>
@@ -42,6 +42,15 @@
       <%= form.label :new_tags, "New Tags", class: "form-label" %>
       <%= form.text_field :new_tags, class: "form-control", placeholder: "Enter new tags separated by commas (e.g., javascript, react, frontend)" %>
       <small class="form-text">Add new tags separated by commas. They will be created automatically.</small>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :images, "Images", class: "form-label" %>
+      <%= render 'shared/image_upload_simple', 
+                 max_files: 10, 
+                 max_size: 5.megabytes, 
+                 field_name: 'question[images][]' %>
+      <small class="form-text">Add images to illustrate your question (max 10 images, 5MB each)</small>
     </div>
 
     <div class="form-actions">

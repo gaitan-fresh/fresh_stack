@@ -1,0 +1,87 @@
+<% 
+  # Create a simple, guaranteed-to-work file input
+  timestamp = Time.current.to_i
+  random = rand(1000)
+  simple_id = "file_input_#{timestamp}_#{random}"
+%>
+
+<div class="image-upload-container">
+  
+  <!-- Hidden file input -->
+  <input type="file" 
+         id="<%= simple_id %>"
+         name="<%= field_name %>"
+         multiple 
+         accept="image/*"
+         style="position: absolute; left: -9999px; opacity: 0; width: 1px; height: 1px;">
+  
+  <!-- Upload dropzone -->
+  <div class="upload-dropzone" onclick="document.getElementById('<%= simple_id %>').click()">
+    <div class="upload-prompt">
+      <div class="upload-icon">📷</div>
+      <p>Drag & drop images here or click to browse</p>
+      <small>Max <%= max_files %> images, <%= max_size / 1024 / 1024 %>MB each</small>
+    </div>
+  </div>
+  
+  <!-- Alternative button -->
+  <div class="upload-fallback">
+    <button type="button" 
+            class="btn btn-secondary btn-sm"
+            onclick="document.getElementById('<%= simple_id %>').click()">
+      📁 Choose Files
+    </button>
+  </div>
+  
+  <!-- Preview area -->
+  <div id="previews_<%= simple_id %>" class="image-previews">
+    <!-- File previews will appear here -->
+  </div>
+  
+</div>
+
+<script>
+(function() {
+  const fileInput = document.getElementById('<%= simple_id %>');
+  const previews = document.getElementById('previews_<%= simple_id %>');
+  
+  if (fileInput && previews) {
+    fileInput.addEventListener('change', function(e) {
+      console.log('✅ Files selected:', e.target.files.length);
+      
+      // Clear previous previews
+      previews.innerHTML = '';
+      
+      if (e.target.files.length > 0) {
+        // Create preview for each file
+        Array.from(e.target.files).forEach((file, index) => {
+          if (file.type.startsWith('image/')) {
+            const previewItem = document.createElement('div');
+            previewItem.className = 'preview-item';
+            previewItem.style.cssText = 'position: relative; display: inline-block; margin: 0.5rem; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);';
+            
+            const img = document.createElement('img');
+            img.style.cssText = 'width: 120px; height: 120px; object-fit: cover; display: block;';
+            img.alt = file.name;
+            
+            const fileName = document.createElement('div');
+            fileName.style.cssText = 'padding: 0.5rem; background: #f8f9fa; font-size: 0.8rem; text-align: center; color: #495057;';
+            fileName.textContent = file.name.length > 15 ? file.name.substring(0, 15) + '...' : file.name;
+            
+            previewItem.appendChild(img);
+            previewItem.appendChild(fileName);
+            previews.appendChild(previewItem);
+            
+            // Create preview using FileReader
+            const reader = new FileReader();
+            reader.onload = function(e) {
+              img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+      }
+    });
+  }
+})();
+</script>

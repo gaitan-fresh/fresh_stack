@@ -1,6 +1,9 @@
 Rails.application.routes.draw do
   root "questions#index"
 
+  # Active Storage routes are automatically included in Rails 8
+  # No need to manually define them unless customization is needed
+
   # Authentication routes
   resources :sessions, only: [ :new, :create, :destroy ]
   resources :users, only: [ :new, :create, :show ]
@@ -43,6 +46,13 @@ Rails.application.routes.draw do
   end
 
   resources :tags, only: [ :index, :show ]
+
+  # Image handling routes
+  resources :images, only: [ :create, :show, :destroy ] do
+    collection do
+      post :batch_upload
+    end
+  end
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   get "up" => "rails/health#show", as: :rails_health_check

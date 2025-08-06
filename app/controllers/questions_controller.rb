@@ -20,14 +20,29 @@ class QuestionsController < ApplicationController
   end
 
   def create
-    @question = current_tenant.questions.build(question_params.except(:new_tags))
+    Rails.logger.info "Question params: #{question_params.inspect}"
+    Rails.logger.info "Images present: #{question_params[:images].present?}"
+    Rails.logger.info "Images count: #{question_params[:images]&.count || 0}"
+
+    @question = current_tenant.questions.build(question_params.except(:new_tags, :images))
     @question.user = current_user
 
     if @question.save
+      Rails.logger.info "Question saved with ID: #{@question.id}"
+
       # Process tags after saving the question
       @question.process_tags(question_params[:tag_ids], question_params[:new_tags])
+
+      # Handle image attachments
+      if question_params[:images].present?
+        Rails.logger.info "Processing #{question_params[:images].count} images"
+        attach_images_to_question
+        Rails.logger.info "Images attached. Total images: #{@question.images.count}"
+      end
+
       redirect_to @question, notice: "Question created successfully!"
     else
+      Rails.logger.error "Question validation failed: #{@question.errors.full_messages}"
       render :new, status: :unprocessable_entity
     end
   end
@@ -36,9 +51,13 @@ class QuestionsController < ApplicationController
   end
 
   def update
-    if @question.update(question_params.except(:new_tags))
+    if @question.update(question_params.except(:new_tags, :images))
       # Process tags after updating the question
       @question.process_tags(question_params[:tag_ids], question_params[:new_tags])
+
+      # Handle image attachments
+      attach_images_to_question if question_params[:images].present?
+
       redirect_to @question, notice: "Question updated successfully!"
     else
       render :edit, status: :unprocessable_entity
@@ -89,7 +108,46 @@ class QuestionsController < ApplicationController
   end
 
   def question_params
-    params.require(:question).permit(:title, :body, :new_tags, tag_ids: [])
+    params.require(:question).permit(:title, :body, :new_tags, tag_ids: [], images: [])
+  end
+
+  def attach_images_to_question
+    return unless question_params[:images].present?
+
+    question_params[:images].each do |image|
+      next if image.blank?
+
+      begin
+        # Attach the image to the question
+        @question.images.attach(image)
+        Rails.logger.info "Attached image: #{image.original_filename} to question #{@question.id}"
+      rescue => e
+        Rails.logger.error "Failed to attach image: #{e.message}"
+        next
+      end
+    end
+
+    # Associate newly attached blobs with tenant
+    if @question.images.attached?
+      @question.images.blobs.each do |blob|
+        begin
+          TenantImageService.attach_to_tenant(blob, current_tenant)
+        rescue => e
+          Rails.logger.error "Failed to associate blob with tenant: #{e.message}"
+        end
+      end
+    end
+
+    # Generate thumbnails in background (optional - can be disabled for debugging)
+    if @question.images.attached?
+      @question.images.blobs.each do |blob|
+        begin
+          ImageProcessingJob.perform_later(blob.id, current_tenant.id, [ :thumbnail, :small ])
+        rescue => e
+          Rails.logger.error "Failed to queue image processing job: #{e.message}"
+        end
+      end
+    end
   end
 
   def vote(value)

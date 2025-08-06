@@ -31,6 +31,8 @@
     <%= simple_format(@blog.body) %>
   </div>
 
+  <%= render 'shared/image_gallery', images: @blog.images %>
+
   <div class="blog-tags">
     <% @blog.tags.each do |tag| %>
       <%= link_to tag.name, tag_path(tag.name), class: "tag-badge" %>

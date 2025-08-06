@@ -3,7 +3,7 @@
 <div class="form-container">
   <h1>Write a Blog Post</h1>
   
-  <%= form_with model: @blog, local: true, class: "form" do |form| %>
+  <%= form_with model: @blog, local: true, multipart: true, class: "form" do |form| %>
     <% if @blog.errors.any? %>
       <div class="alert alert-danger">
         <h4><%= pluralize(@blog.errors.count, "error") %> prohibited this blog post from being saved:</h4>
@@ -51,6 +51,15 @@
         </div>
       <% end %>
       <small class="form-text">Link this blog post to related questions</small>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :images, "Images", class: "form-label" %>
+      <%= render 'shared/image_upload_simple', 
+                 max_files: 15, 
+                 max_size: 5.megabytes, 
+                 field_name: 'blog[images][]' %>
+      <small class="form-text">Add images to enhance your blog post (max 15 images, 5MB each)</small>
     </div>
 
     <div class="form-actions">
