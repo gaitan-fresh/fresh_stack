@@ -122,7 +122,8 @@ GEM
       raabro (~> 1.4)
     globalid (1.2.1)
       activesupport (>= 6.1)
-    httparty (0.21.0)
+    httparty (0.23.1)
+      csv
       mini_mime (>= 1.0.0)
       multi_xml (>= 0.5.2)
     i18n (1.14.7)
@@ -387,7 +388,7 @@ DEPENDENCIES
   capybara
   csv (~> 3.2)
   debug
-  httparty (~> 0.21.0)
+  httparty (~> 0.23.1)
   image_processing (~> 1.2)
   importmap-rails
   jbuilder
