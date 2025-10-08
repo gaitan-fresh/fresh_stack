@@ -21,7 +21,7 @@ gem "jbuilder"
 gem "bcrypt", "~> 3.1.7"
 
 # HTTP client for API requests
-gem "httparty", "~> 0.21.0"
+gem "httparty", "~> 0.23.2"
 # CSV gem required for Ruby 3.4+
 gem "csv", "~> 3.2"
 
